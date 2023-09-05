@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  clk-server-1:
+    image: clickhouse-server
+    build:
+      context: ./server
+    container_name: clickhouse-server-1
+    hostname: clickhouse-01
+    environment:
+      - CLUSTER_NAME=cluster_1S_2R
+      - CLUSTER_PASSWORD=password 
+      - NODE_NAME=node_1
+      - REPLICA=01
+      - REPLICA_HOST_1=clickhouse-01
+      - REPLICA_HOST_2=clickhouse-02
+      - CLICKHOUSE_KEEPER_1=clickhouse-keeper-01
+      - CLICKHOUSE_KEEPER_2=clickhouse-keeper-02
+      - CLICKHOUSE_KEEPER_3=clickhouse-keeper-03
