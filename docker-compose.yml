@@ -1,8 +1,13 @@
 version: '3'
 
+networks:
+  clickhouse-network:
+    driver: bridge
+    external: true
+
 services:
   clickhouse-01:
-    image: clickhouse-server
+    image: clickhouse-server-1
     build:
       context: ./server
       args:
@@ -15,9 +20,95 @@ services:
         - CLICKHOUSE_KEEPER_1=clickhouse-keeper-01
         - CLICKHOUSE_KEEPER_2=clickhouse-keeper-02
         - CLICKHOUSE_KEEPER_3=clickhouse-keeper-03
+        - HOSTNAME=clickhouse-01
     container_name: clickhouse-server-1
     hostname: clickhouse-01
     ports:
       - "9001:9000"
       - "8131:8123"
       - "8451:8443"
+    networks:
+      - clickhouse-network
+    depends_on:
+      - clickhouse-keeper-01
+      - clickhouse-keeper-02
+      - clickhouse-keeper-03
+
+  clickhouse-02:
+    image: clickhouse-server-2
+    build:
+      context: ./server
+      args:
+        - CLUSTER_NAME=cluster_1S_2R
+        - CLUSTER_PASSWORD=password 
+        - NODE_NAME=node_2
+        - REPLICA=02
+        - REPLICA_HOST_1=clickhouse-01
+        - REPLICA_HOST_2=clickhouse-02
+        - CLICKHOUSE_KEEPER_1=clickhouse-keeper-01
+        - CLICKHOUSE_KEEPER_2=clickhouse-keeper-02
+        - CLICKHOUSE_KEEPER_3=clickhouse-keeper-03
+        - HOSTNAME=clickhouse-02
+    container_name: clickhouse-server-2
+    hostname: clickhouse-02
+    ports:
+      - "9002:9000"
+      - "8132:8123"
+      - "8452:8443"
+    networks:
+      - clickhouse-network
+    depends_on:
+      - clickhouse-keeper-01
+      - clickhouse-keeper-02
+      - clickhouse-keeper-03
+
+  clickhouse-keeper-01:
+    image: clickhouse-keeper-1
+    build:
+      context: ./keeper
+      args:
+        - KEEPER_ID=1
+        - HOSTNAME=clickhouse-keeper-01
+        - CLICKHOUSE_KEEPER_1=clickhouse-keeper-01
+        - CLICKHOUSE_KEEPER_2=clickhouse-keeper-02
+        - CLICKHOUSE_KEEPER_3=clickhouse-keeper-03
+    container_name: clickhouse-keeper-1
+    hostname: clickhouse-keeper-01
+    ports:
+      - "9171:9181"
+    networks:
+      - clickhouse-network
+
+  clickhouse-keeper-02:
+    image: clickhouse-keeper-2
+    build:
+      context: ./keeper
+      args:
+        - KEEPER_ID=2
+        - HOSTNAME=clickhouse-keeper-02
+        - CLICKHOUSE_KEEPER_1=clickhouse-keeper-01
+        - CLICKHOUSE_KEEPER_2=clickhouse-keeper-02
+        - CLICKHOUSE_KEEPER_3=clickhouse-keeper-03
+    container_name: clickhouse-keeper-2
+    hostname: clickhouse-keeper-02
+    ports:
+      - "9172:9181"
+    networks:
+      - clickhouse-network
+
+  clickhouse-keeper-03:
+    image: clickhouse-keeper-3
+    build:
+      context: ./keeper
+      args:
+        - KEEPER_ID=3
+        - HOSTNAME=clickhouse-keeper-03
+        - CLICKHOUSE_KEEPER_1=clickhouse-keeper-01
+        - CLICKHOUSE_KEEPER_2=clickhouse-keeper-02
+        - CLICKHOUSE_KEEPER_3=clickhouse-keeper-03
+    container_name: clickhouse-keeper-3
+    hostname: clickhouse-keeper-03
+    ports:
+      - "9173:9181"
+    networks:
+      - clickhouse-network
