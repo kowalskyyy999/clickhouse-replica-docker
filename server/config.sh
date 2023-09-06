@@ -49,7 +49,7 @@ echo "<clickhouse>
             <port>9181</port>
         </node>
         <node>
-            <host>${CLICKHOUSE_KEEPER_3}</host>
+            <host>${CLICKHOUSE_KEEPER_2}</host>
             <port>9181</port>
         </node>
         <node>
