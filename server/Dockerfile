@@ -21,16 +21,37 @@ RUN yum-config-manager --add-repo https://packages.clickhouse.com/rpm/clickhouse
 
 RUN yum install -y clickhouse-server clickhouse-client
 
+RUN dnf install sudo -y
+
 RUN systemctl enable clickhouse-server.service
+
+ARG CLUSTER_NAME
+ARG CLUSTER_PASSWORD
+ARG NODE_NAME
+ARG REPLICA
+ARG REPLICA_HOST_1
+ARG REPLICA_HOST_2
+ARG CLICKHOUSE_KEEPER_1
+ARG CLICKHOUSE_KEEPER_2
+ARG CLICKHOUSE_KEEPER_3
+
+ENV CLUSTER_NAME=${CLUSTER_NAME}
+ENV CLUSTER_PASSWORD=${CLUSTER_PASSWORD}
+ENV NODE_NAME=${NODE_NAME}
+ENV REPLICA=${REPLICA}
+ENV REPLICA_HOST_1=${REPLICA_HOST_1}
+ENV REPLICA_HOST_2=${REPLICA_HOST_2}
+ENV CLICKHOUSE_KEEPER_1=${CLICKHOUSE_KEEPER_1}
+ENV CLICKHOUSE_KEEPER_2=${CLICKHOUSE_KEEPER_2}
+ENV CLICKHOUSE_KEEPER_3=${CLICKHOUSE_KEEPER_3}
 
 COPY config.sh /config.sh 
 
-# RUN chmod a+x config.sh && \
-#         ./config.sh
+COPY start_server.sh /start_server.sh 
 
-# RUN cat /etc/clickhouse-server/config.d/remote-servers.xml
-
-# RUN echo "${CLUSTER_NAME}"
+RUN chmod a+x config.sh && \
+    chmod a+x start_server.sh && \
+        ./config.sh
 
 VOLUME /var/lib/clickhouse
 
@@ -41,37 +62,6 @@ RUN chown -R clickhouse:clickhouse /etc/clickhouse-server && \
     chown -R clickhouse:clickhouse /var/log/clickhouse-server && \
     chown -R clickhouse:clickhouse /usr/bin/clickhouse-server
 
-RUN dnf install sudo -y
-
-COPY start_server.sh .
-RUN chmod 755 start_server.sh
-
 USER clickhouse
 
 ENTRYPOINT [ "bash", "start_server.sh" ]
-
-# RUN echo "/usr/bin/clickhouse-server --config=/etc/clickhouse-server/config.xml --pid-file=clickhouse-server.pid" > start_server.sh
-
-# RUN echo "tail -f /var/log/clickhouse-server/clickhouse-server.log" > entrypoint.sh
-
-# RUN chmod a+x start_server.sh
-
-# RUN chmod a+x entrypoint.sh
-
-# RUN su clickhouse
-
-# RUN whoami
-
-# RUN ./start_server.sh
-
-# # RUN systemctl start clickhouse-server.service
-
-# ENTRYPOINT [ "bash" , "entrypoint.sh"]
-
-# /usr/bin/clickhouse-server --config=/etc/clickhouse-server/config.xml --pid-file=%t/%p/%p.pid
-
-# /usr/bin/clickhouse-server --config=/etc/clickhouse-server/config.xml --pid-file=clickhouse-server.pid
-
-# chown -R clickhouse:clickhouse /var/lib/clickhouse/
-# chown -R clickhouse:clickhouse /var/log/clickhouse-server/
-# chown -R clickhouse:clickhouse /etc/clickhouse-server
