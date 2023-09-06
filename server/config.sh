@@ -9,7 +9,7 @@ echo "<clickhouse>
         <count>3</count>
     </logger>
     <display_name>${CLUSTER_NAME} ${NODE_NAME}</display_name>
-    <listen_host>0.0.0.0</listen_host>
+    <listen_host>${HOSTNAME}</listen_host>
     <http_port>8123</http_port>
     <tcp_port>9000</tcp_port>
 </clickhouse>" > /etc/clickhouse-server/config.d/network-and-logging.xml
